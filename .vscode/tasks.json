@@ -156,7 +156,34 @@
         {
             "label": "Build & flash (nucleo_h723zg)",
             "dependsOn": ["Build (nucleo_h723zg)", "Flash"],
+            "dependsOrder": "sequence",
             "problemMatcher": []
+        },
+        {
+            "label": "GUI Config (nucleo_h723)",
+            "type": "shell",
+            "command": "west",
+            "args": [
+                "build",
+                "-p",
+                "auto",
+                "-t",
+                "guiconfig",
+                "--build-dir",
+                "build/guiconfig"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/applications",
+                "env":{
+                    "BOARD": "nucleo_h723zg"
+                }
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "clear": true
+            },
+            "problemMatcher": [],
         },
     ],
 }
