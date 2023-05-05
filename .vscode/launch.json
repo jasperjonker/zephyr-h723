@@ -1,0 +1,84 @@
+{
+    "configurations": [
+        {
+            "name": "(gdb) ST-Link",
+            "cwd": "${workspaceFolder}",
+            "executable": "${workspaceFolder}/applications/build/nucleo_h723zg/zephyr/zephyr.elf",
+            "preLaunchTask": "Build (nucleo_h723zg)",
+            "request": "launch",
+            "type": "cortex-debug",
+            "runToEntryPoint": "main",
+            "showDevDebugOutput": "none",
+            "servertype": "stlink",
+            "armToolchainPath": "/opt/zephyr-sdk-0.16.0/arm-zephyr-eabi/bin/",
+            "toolchainPrefix": "arm-zephyr-eabi",
+            "svdFile": "${workspaceFolder}/applications/resources/STM32H723.svd",
+            "device": "STM32H723ZG",
+            "interface": "swd"
+        },
+        {
+            "name": "(gdb) J-Link",
+            "cwd": "${workspaceFolder}",
+            "executable": "${workspaceFolder}/applications/build/nucleo_h723zg/zephyr/zephyr.elf",
+            "preLaunchTask": "Build (nucleo_h723zg)",
+            "request": "launch",
+            "type": "cortex-debug",
+            "runToEntryPoint": "main",
+            "showDevDebugOutput": "none",
+            "servertype": "jlink",
+            "armToolchainPath": "/opt/zephyr-sdk-0.16.0/arm-zephyr-eabi/bin/",
+            "toolchainPrefix": "arm-zephyr-eabi",
+            "svdFile": "${workspaceFolder}/applications/resources/STM32H723.svd",
+            "rtos": "zephyr",
+            "device": "STM32H723ZG",
+            "interface": "swd"
+        },
+        {
+            "name": "(gdb) QEMU arm",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/applications/build/qemu_arm/zephyr/zephyr.elf",
+            "preLaunchTask": "Build (qemu arm)",
+            "args": [],
+            "stopAtEntry": true,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "miDebuggerServerAddress": "localhost:1234",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "(gdb) QEMU x86",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/applications/build/qemu_x86/zephyr/zephyr.elf",
+            "args": [],
+            "stopAtEntry": true,
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "Build (qemu x86)",
+
+            // Find a way to not wait for ninja debugser to finish
+            // "preLaunchTask": "Ninja debugserver",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "miDebuggerServerAddress": "localhost:1234",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        }
+    ]
+}

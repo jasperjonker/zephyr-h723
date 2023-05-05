@@ -1,0 +1,11 @@
+# Build folder
+applications/build
+
+# Zepyr managed files
+bootloader
+modules
+tools
+zephyr
+
+# Misc
+.python-version

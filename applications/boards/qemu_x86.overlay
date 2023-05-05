@@ -1,0 +1,25 @@
+/ {
+	pwmleds {
+		compatible = "pwm-leds";
+
+		red_pwm_led: red_pwm_led {
+			pwms = <&pwm12 1 PWM_MSEC(20) PWM_POLARITY_NORMAL>;
+			label = "User LD3 - PWM12";
+		};
+	};
+
+    aliases {
+        pwm-led0 = &red_pwm_led;
+    };
+};
+
+&timers12 {
+	st,prescaler = <10000>;
+	status = "okay";
+
+	pwm12: pwm {
+		status = "okay";
+		pinctrl-0 = <&tim12_ch1_pb14>;
+		pinctrl-names = "default";
+	};
+};
