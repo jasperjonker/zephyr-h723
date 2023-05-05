@@ -125,7 +125,9 @@
             "type": "shell",
             "command": "west",
             "args": [
-                "flash"
+                "flash",
+                "--build-dir",
+                "build/nucleo_h723zg"
             ],
             "group": {
                 "kind": "build",
