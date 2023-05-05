@@ -5,6 +5,9 @@
 2) We use the [zephyr workspace application structure](https://docs.zephyrproject.org/latest/develop/application/index.html#zephyr-workspace-application). Clone this repository. It should look like:
     ```
     zephyrproject/
+    ├─── .vscode/
+    │    └─── launch.json
+    │    └─── ...
     ├─── .west/
     │    └─── config
     ├─── zephyr/
