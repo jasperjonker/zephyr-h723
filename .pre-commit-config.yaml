@@ -1,0 +1,17 @@
+fail_fast: false
+repos:
+  - repo: https://github.com/pocc/pre-commit-hooks
+    rev: v1.3.5
+    hooks:
+      # Too many negative changes
+      # - id: clang-format
+        # args: ["--style={BasedOnStyle: Google, IndentWidth: 4}", -i]
+      # - id: clang-tidy
+        # args: [--fix-errors]
+      # - id: oclint
+      - id: uncrustify
+        args: [--replace, --no-backup]
+      - id: cppcheck
+      - id: cpplint
+        args: ["--verbose=0", --linelength=120, "--filter=-legal/copyright,-readability/casting"]
+      # - id: include-what-you-use
