@@ -6,6 +6,8 @@
 #include <zephyr/drivers/uart.h>
 #include <zephyr/drivers/adc.h>
 #include <string.h>  // memset
+#include <stdio.h>
+
 
 /* #include <zephyr/logging/log.h> */
 /* LOG_MODULE_REGISTER(main, CONFIG_APP_LOG_LEVEL); */
@@ -39,34 +41,46 @@ const struct device *const uart_dev = DEVICE_DT_GET(CONSOLE_UART_NAME);
 #error "UART is disabled"
 #endif
 
-static uint16_t buf;
+static struct k_mutex uart_mutex;
+
+/* ADC Buffer */
+static uint16_t adc_buf;
+static struct k_fifo adc_fifo;
 
 static struct adc_sequence sequence = {
-    .buffer = &buf,
+    .buffer = &adc_buf,
     /* buffer size in bytes, not number of samples */
-    .buffer_size = sizeof(buf),
+    .buffer_size = sizeof(adc_buf),
 };
 
 // struct k_poll_signal async_sig;
+
+/* Function prototypes */
+void init_adc(void);
+void print_adc_readings(void);
+void print_uart3(char *buf);
+int8_t init_pwm(uint32_t period, uint32_t pulse_width);
 
 
 /* Initialize the ADC device */
 void init_adc(void) {
     for (size_t i = 0U; i < ARRAY_SIZE(adc_channels); i++) {
         if (!device_is_ready(adc_channels[i].dev)) {
-            printk("ADC controller device %s not ready\n", adc_channels[i].dev->name);
+            printk("ADC controller device %s not ready\r\r\n", adc_channels[i].dev->name);
             return;
         }
 
         int err = adc_channel_setup_dt(&adc_channels[i]);
         if (err < 0) {
-            printk("Could not setup channel #%d (%d)\n", i, err);
+            printk("Could not setup channel #%d (%d)\r\n", i, err);
             return;
         }
     }
 
     if (!device_is_ready(uart_dev)) {
-        printk("UART device %s not ready\r\n", uart_dev->name);
+        char buf[50];
+        snprintf(buf, sizeof(buf), "UART device %s not ready\r\n", uart_dev->name);
+        print_uart3(buf);
         return;
     }
 
@@ -78,8 +92,8 @@ void init_adc(void) {
     // Clean buffer
     // memset(sample_buffer, 0, sizeof(sample_buffer));
 
-    print_uart3("ADC setup done\n");
-    // printk("ADC setup done!\n");
+    print_uart3("ADC setup done\r\n");
+    // printk("ADC setup done!\r\n");
 
     int err;
     int32_t val_mv;
@@ -89,22 +103,23 @@ void init_adc(void) {
 
             err = adc_read(adc_channels[i].dev, &sequence);
             if (err < 0) {
-                print_uart3("ADC read failed\n");
+                print_uart3("ADC read failed\r\n");
             }
 
             if (adc_channels[i].channel_cfg.differential) {
-                val_mv = (int32_t)((int16_t)buf);
+                val_mv = (int32_t)((int16_t)adc_buf);
             } else {
-                val_mv = (int32_t)buf;
+                val_mv = (int32_t)adc_buf;
             }
 
             err = adc_raw_to_millivolts_dt(&adc_channels[i], &val_mv);
             if (err < 0) {
-                print_uart3("ADC conversion to milivolt not supported\n");
+                print_uart3("ADC conversion to milivolt not supported\r\n");
             }
-            char buffer[50];
-            snprintf(buffer, sizeof(buffer), "ADC read (channel %d): %d mV\r\n", adc_channels[i].channel_id, val_mv);
-            print_uart3(buffer);
+
+            // printk("Place ADC reading %d in FIFO\r\n", val_mv);
+            // Place ADC reading in fifo buffer
+            k_fifo_alloc_put(&adc_fifo, &val_mv);
         }
         k_sleep(K_MSEC(1000));
     }
@@ -115,9 +130,9 @@ void init_adc(void) {
     // Start sampling
     // int err = adc_read_async(adc_dev, &sequence, &async_sig);
     // if (err) {
-    //     printk("ADC read failed with code %d!\n", err);
+    //     printk("ADC read failed with code %d!\r\n", err);
     // } else {
-    //     printk("ADC read started!\n");
+    //     printk("ADC read started!\r\n");
     // }
 
     // while (1) {
@@ -139,48 +154,73 @@ void init_adc(void) {
 }
 
 // ------------------------------------------------
-// high level read adc channel and convert to float voltage
+// Print ADC values
 // ------------------------------------------------
-void print_uart3(char *buf) {
-    int msg_len = strlen(buf);
-    for (int i = 0; i < msg_len; i++) {
-        uart_poll_out(uart_dev, buf[i]);
+void print_adc_readings(void) {
+    int32_t *val_mv;
+    char buffer[50];
+
+    while (1) {
+        val_mv = k_fifo_get(&adc_fifo, K_FOREVER);
+        // Fix this for all channels
+        snprintf(buffer, sizeof(buffer), "ADC read (channel %d): %d mV\r\n", adc_channels[0].channel_id, *val_mv);
+        print_uart3(buffer);
+        k_sleep(K_MSEC(1000));
     }
 }
 
+// ------------------------------------------------
+// Write to uart3
+// ------------------------------------------------
+void print_uart3(char *buf) {
+    int msg_len = strlen(buf);
 
-int8_t init_pwm(void) {
+    k_mutex_lock(&uart_mutex, K_FOREVER);
+    for (int i = 0; i < msg_len; i++) {
+        uart_poll_out(uart_dev, buf[i]);
+    }
+    k_mutex_unlock(&uart_mutex);
+}
+
+// ------------------------------------------------
+// Initialize PWM
+// ------------------------------------------------
+int8_t init_pwm(uint32_t period, uint32_t pulse_width) {
     static const struct pwm_dt_spec pwm_led0 = PWM_DT_SPEC_GET(DT_ALIAS(pwm_led0));
     if (!device_is_ready(pwm_led0.dev)) {
         printk("Cannot find PWM device!\n");
         return -1;
     } else {
-        printk("PWM device found: %s\n", pwm_led0.dev->name);
+        printk("PWM device found: %s\r\n", pwm_led0.dev->name);
     }
 
-    int ret = pwm_set_dt(&pwm_led0, 2e9, 1e9);
+    int ret = pwm_set_dt(&pwm_led0, period, pulse_width);
     if (ret < 0) {
-        printk("Error %d: failed to set pulse width\n", ret);
+        printk("Error %d: failed to set pulse width\r\n", ret);
         return -1;
     } else {
-        printk("PWM set!\n");
+        printk("PWM set!\r\n");
     }
 
     return 0;
 }
 
-K_THREAD_DEFINE(adc_uart_thread, STACKSIZE, init_adc, NULL, NULL, NULL, PRIORITY, 0, 0);
+K_THREAD_DEFINE(adc_thread, STACKSIZE, init_adc, NULL, NULL, NULL, PRIORITY, 0, 500);
+K_THREAD_DEFINE(adc_print_thread, STACKSIZE, print_adc_readings, NULL, NULL, NULL, PRIORITY, 0, 500);
 
 int main(void) {
-    printk("Booting...\n");
+    printk("Booting...\r\n");
 
-    init_pwm();
+    k_fifo_init(&adc_fifo);
+    k_mutex_init(&uart_mutex);
+    init_pwm((uint32_t)2e9, (uint32_t)1e9);
 
-    printk("Booting...[DONE]\n");
+    k_sleep(K_MSEC(300));
+    printk("Booting...[DONE]\r\n");
 
     while (1) {
         k_sleep(K_MSEC(1000));
-        // printk("Zephyr Example\n");
+        // printk("Zephyr Example\r\n");
     }
 
     return 0;
