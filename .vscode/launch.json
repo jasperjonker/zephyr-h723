@@ -29,7 +29,7 @@
             "armToolchainPath": "/opt/zephyr-sdk-0.16.0/arm-zephyr-eabi/bin/",
             "toolchainPrefix": "arm-zephyr-eabi",
             "svdFile": "${workspaceFolder}/applications/resources/STM32H723.svd",
-            "rtos": "zephyr",
+            "rtos": "Zephyr",
             "device": "STM32H723ZG",
             "interface": "swd"
         },

@@ -4,6 +4,7 @@
         "device.h": "c",
         "zephyr.h": "c",
         "kernel.h": "c",
-        "dma.h": "c"
+        "dma.h": "c",
+        "cstdio": "c"
     }
 }
