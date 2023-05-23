@@ -1,0 +1,7 @@
+[
+	{
+	"key": "ctrl+h",
+	"command": "workbench.action.tasks.runTask",
+	"args": "Build & flash (nucleo_h723zg)"
+	}
+]
