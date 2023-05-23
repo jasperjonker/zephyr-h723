@@ -1,0 +1,25 @@
+description: |
+  General Servo Motor PWM Bindings
+
+compatible: pwm-servo
+
+child-binding:
+  description: PWM child node
+  properties:
+    pwms:
+      required: true
+      type: phandle-array
+
+    min-pulse:
+      type: int
+      default: 800
+      description: |
+        Minimum pulse width in microseconds. This is the pulse width
+        corresponding to the minimum servo position.
+
+    max-pulse:
+      type: int
+      default: 2200
+      description: |
+        Maximum pulse width in microseconds. This is the pulse width
+        corresponding to the maximum servo position.
