@@ -15,7 +15,8 @@
 
 &timers3 {
 	status = "okay";
-	st,prescaler = <10000>;
+	// Timer at 275 MHz.
+	st,prescaler = <100>;
 
 	pwm3: pwm3 {
 		compatible = "st,stm32-pwm";

@@ -99,7 +99,7 @@ void ramp_servo(const uint32_t pulse_width_start, const uint32_t pulse_width_end
             pulse_width -= step;
         }
 
-        k_sleep(K_MSEC(100));
+        k_sleep(K_MSEC(10));
     }
 }
 
@@ -108,13 +108,14 @@ int main(void) {
 
     init_pwm_led((uint32_t)2e9, (uint32_t)1e9);
     init_pwm_servo();
-    ramp_servo(PWM_USEC(1500), PWM_USEC(900), PWM_USEC(100));
 
     while (1) {
-        k_sleep(K_SECONDS(1));
-        ramp_servo(PWM_USEC(1000), PWM_USEC(2100), PWM_USEC(100));
-        k_sleep(K_SECONDS(1));
-        ramp_servo(PWM_USEC(2000), PWM_USEC(900), PWM_USEC(100));
+        k_sleep(K_SECONDS(5));
+        // ramp_servo(PWM_USEC(1000), PWM_USEC(2100), PWM_USEC(10));
+        set_pulse_width(PWM_USEC(1000));
+        k_sleep(K_SECONDS(5));
+        // ramp_servo(PWM_USEC(2000), PWM_USEC(900), PWM_USEC(10));
+        set_pulse_width(PWM_USEC(2000));
     }
 
     LOG_INF("Booting...[DONE]\r\n");
