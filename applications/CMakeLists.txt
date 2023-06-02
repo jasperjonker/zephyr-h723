@@ -12,4 +12,6 @@ set(CONF_FILE "prj.conf")
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(test)
 
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/lib/drivetrain)
+
 target_sources(app PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/main.c)
