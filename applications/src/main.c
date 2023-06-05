@@ -57,10 +57,10 @@ int main(void) {
     */
     LOG_INF("Booting...[DONE]\r\n");
 
-    while (1) {
-        ramp_pwm_drivetrain(PWM_USEC(1000), PWM_USEC(2000));
-        ramp_pwm_drivetrain(PWM_USEC(2000), PWM_USEC(1000));
-    }
+    // while (1) {
+    //     ramp_pwm_drivetrain(PWM_USEC(1000), PWM_USEC(2000));
+    //     ramp_pwm_drivetrain(PWM_USEC(2000), PWM_USEC(1000));
+    // }
 
 
     while (1) {

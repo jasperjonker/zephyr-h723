@@ -4,6 +4,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/pwm.h>
 #include <zephyr/logging/log.h>
+#include <zephyr/shell/shell.h>
 #include <stdlib.h>
 
 // ------------------------------------------------
@@ -35,5 +36,6 @@ enum ramp_direction {
 int8_t init_drivetrain(void);
 int8_t set_pulse_width_drivetrain(uint32_t pulse_width);
 void ramp_pwm_drivetrain(const uint32_t pulse_width_start, const uint32_t pulse_width_end);
+int8_t cli_ramp_pwm_drivetrain(const struct shell *sh, size_t argc, char **argv);
 
 #endif /* DRIVETRAIN_H_ */
